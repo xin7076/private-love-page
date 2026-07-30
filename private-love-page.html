@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>专属恋爱网页</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --pink: #FFB6C1;
+      --pink-deep: #ff8fa3;
+      --pink-soft: #ffeef2;
+      --text: #5e4b4b;
+      --muted: #8f6f75;
+      --white: #ffffff;
+      --shadow: 0 12px 32px rgba(255, 182, 193, 0.2);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, #fff8fb 0%, #fff 100%);
+      min-height: 100vh;
+    }
+
+    .hidden { display: none !important; }
+
+    .lock-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: radial-gradient(circle at top, #ffeef2 0%, #fff8fb 70%, #fff 100%);
+    }
+
+    .lock-card {
+      width: min(95%, 420px);
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 32px 24px;
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+
+    .lock-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      color: var(--pink-deep);
+    }
+
+    .lock-subtitle {
+      color: var(--muted);
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .password-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 999px;
+      border: 1px solid #f4c7d1;
+      outline: none;
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    .password-input:focus { border-color: var(--pink-deep); box-shadow: 0 0 0 3px rgba(255,182,193,0.2); }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
+      font-weight: 600;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: linear-gradient(135deg, var(--pink), var(--pink-deep)); color: white; box-shadow: 0 8px 18px rgba(255,182,193,0.25); }
+    .btn-secondary { background: var(--pink-soft); color: var(--text); }
+
+    .error { color: #d9534f; margin-top: 8px; min-height: 20px; }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 18px;
+      border: 1px solid #fff2f5;
+    }
+
+    .hero {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1.4fr 1fr;
+      align-items: center;
+      background: linear-gradient(135deg, #fff8fb 0%, #ffffff 50%, #ffeef2 100%);
+    }
+
+    .hero-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      margin: 0 0 8px;
+      color: var(--pink-deep);
+    }
+
+    .hero p { margin: 0; line-height: 1.8; color: var(--muted); }
+
+    .timer-box {
+      background: linear-gradient(135deg, var(--pink), #ffdbe3);
+      border-radius: 18px;
+      padding: 16px;
+      color: #5a2f3d;
+      text-align: center;
+    }
+
+    .timer-box .big {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .timer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .timer-cell {
+      background: rgba(255,255,255,0.45);
+      border-radius: 12px;
+      padding: 10px 6px;
+    }
+
+    .timer-cell strong { display: block; font-size: 1.2rem; }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      background: var(--pink-soft);
+      color: var(--text);
+      border: 1px solid #f4d3dc;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 600;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+      color: white;
+      box-shadow: 0 8px 18px rgba(255,182,193,0.24);
+    }
+
+    .tab-panel {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .3s ease, transform .3s ease;
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.6rem;
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: var(--pink-deep);
+    }
+
+    .countdown-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .count-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #fff8fb;
+      border: 1px solid #f9dce3;
+    }
+
+    .photo-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .photo-card {
+      background: #fffafc;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #f6dce2;
+      padding: 10px;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      cursor: pointer;
+      display: block;
+    }
+
+    .photo-card textarea,
+    .entry-input,
+    .message-input,
+    .wish-input,
+    .wish-date,
+    .sender-select {
+      width: 100%;
+      border: 1px solid #f0d3dc;
+      border-radius: 12px;
+      padding: 10px 12px;
+      resize: vertical;
+      font: inherit;
+      margin-top: 8px;
+      outline: none;
+    }
+
+    .photo-card textarea:focus,
+    .entry-input:focus,
+    .message-input:focus,
+    .wish-input:focus,
+    .wish-date:focus,
+    .sender-select:focus {
+      border-color: var(--pink-deep);
+      box-shadow: 0 0 0 3px rgba(255,182,193,0.15);
+    }
+
+    .photo-actions,
+    .entry-actions,
+    .message-actions,
+    .wish-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .entry-list,
+    .message-list,
+    .wish-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .entry-item,
+    .message-item,
+    .wish-item {
+      background: #fff8fb;
+      border: 1px solid #f9dce3;
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--pink-soft);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      margin-right: 6px;
+      color: var(--pink-deep);
+      font-weight: 600;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      width: min(96%, 760px);
+      background: white;
+      border-radius: 20px;
+      padding: 16px;
+      position: relative;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+    }
+
+    .modal-content img {
+      width: 100%;
+      max-height: 72vh;
+      object-fit: contain;
+      border-radius: 16px;
+    }
+
+    .modal-close,
+    .modal-nav {
+      position: absolute;
+      border: none;
+      background: rgba(255,255,255,0.85);
+      border-radius: 999px;
+      width: 42px;
+      height: 42px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .modal-close { top: 12px; right: 12px; }
+    .modal-nav.prev { left: 12px; top: 50%; transform: translateY(-50%); }
+    .modal-nav.next { right: 12px; top: 50%; transform: translateY(-50%); }
+
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,240,245,0.96), rgba(255,255,255,0.98));
+      display: grid;
+      place-items: center;
+      z-index: 2000;
+      animation: fadeOut 2s ease forwards;
+      animation-delay: 0.2s;
+      pointer-events: none;
+    }
+
+    .intro-overlay .heart {
+      font-size: 3rem;
+      animation: float 1.2s ease-in-out infinite alternate;
+    }
+
+    .intro-overlay .text {
+      margin-top: 12px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.8rem;
+      color: var(--pink-deep);
+      text-align: center;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid #f7dce4;
+      z-index: 100;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .audio-controls { display: flex; align-items: center; gap: 8px; }
+
+    @keyframes float {
+      from { transform: translateY(0); }
+      to { transform: translateY(-10px); }
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+
+    @media (max-width: 800px) {
+      .hero { grid-template-columns: 1fr; }
+      .footer { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-card">
+      <h1 class="lock-title">私密入口</h1>
+      <p class="lock-subtitle">这是为你准备的专属网页，请输入密码进入心动的世界。</p>
+      <input id="passwordInput" class="password-input" type="password" placeholder="请输入密码" />
+      <button id="enterBtn" class="btn btn-primary">进入</button>
+      <div id="errorMsg" class="error"></div>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <section class="card hero">
+      <div>
+        <h1 class="hero-title">恋爱计时器</h1>
+        <p>从相遇的那一天开始，和你一起走过的每一秒都值得珍藏。</p>
+        <p style="margin-top: 8px;">“和你在一起的每一天都值得纪念”。</p>
+      </div>
+      <div class="timer-box">
+        <div>已相恋</div>
+        <div class="big" id="loveTimer">0天 00:00:00</div>
+        <div class="timer-grid">
+          <div class="timer-cell"><strong id="timerDays">0</strong><span>天</span></div>
+          <div class="timer-cell"><strong id="timerHours">0</strong><span>小时</span></div>
+          <div class="timer-cell"><strong id="timerMinutes">0</strong><span>分钟</span></div>
+          <div class="timer-cell"><strong id="timerSeconds">0</strong><span>秒</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="内容标签页">
+      <button class="tab-btn active" data-tab="album">相册</button>
+      <button class="tab-btn" data-tab="diary">日记</button>
+      <button class="tab-btn" data-tab="message">留言板</button>
+      <button class="tab-btn" data-tab="wish">心愿清单</button>
+    </div>
+
+    <section class="card tab-panel active" id="album">
+      <h2 class="section-title">私密相册</h2>
+      <div class="photo-actions">
+        <label class="btn btn-secondary" for="uploadPhotos">上传图片</label>
+        <input id="uploadPhotos" type="file" accept="image/*" multiple style="display:none" />
+      </div>
+      <div id="photoGrid" class="photo-grid"></div>
+    </section>
+
+    <section class="card tab-panel" id="diary">
+      <h2 class="section-title">双人日记</h2>
+      <textarea id="diaryInput" class="entry-input" rows="3" placeholder="写下今天的心情..."></textarea>
+      <div class="entry-actions">
+        <button id="publishDiaryBtn" class="btn btn-primary">发布</button>
+      </div>
+      <div id="diaryList" class="entry-list"></div>
+    </section>
+
+    <section class="card tab-panel" id="message">
+      <h2 class="section-title">留言板</h2>
+      <select id="senderSelect" class="sender-select">
+        <option value="我">我</option>
+        <option value="她">她</option>
+      </select>
+      <textarea id="messageInput" class="message-input" rows="3" placeholder="说说想对她/对我说的话..."></textarea>
+      <div class="message-actions">
+        <button id="publishMessageBtn" class="btn btn-primary">留言</button>
+      </div>
+      <div id="messageList" class="message-list"></div>
+    </section>
+
+    <section class="card tab-panel" id="wish">
+      <h2 class="section-title">心愿清单</h2>
+      <div class="wish-row">
+        <input id="wishName" class="wish-input" type="text" placeholder="心愿名称" />
+        <input id="wishDate" class="wish-date" type="date" />
+        <button id="addWishBtn" class="btn btn-primary">添加</button>
+      </div>
+      <div id="wishList" class="wish-list"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">纪念日倒计时</h2>
+      <div id="countdownList" class="countdown-list"></div>
+    </section>
+  </div>
+
+  <div id="introOverlay" class="intro-overlay">
+    <div>
+      <div class="heart">💖</div>
+      <div class="text">欢迎回来，亲爱的</div>
+    </div>
+  </div>
+
+  <div id="photoModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content">
+      <button class="modal-close" id="closeModalBtn">✕</button>
+      <button class="modal-nav prev" id="prevPhotoBtn">◀</button>
+      <img id="modalImage" src="" alt="照片预览" />
+      <button class="modal-nav next" id="nextPhotoBtn">▶</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="audio-controls">
+      <button id="audioToggleBtn" class="btn btn-secondary">暂停音乐</button>
+      <span>轻柔背景音乐</span>
+    </div>
+    <div>❤️ 永远爱你</div>
+  </div>
+
+  <audio id="bgAudio" loop></audio>
+
+  <script>
+    const STORAGE_KEYS = {
+      login: 'love-login',
+      photos: 'love-photos',
+      diary: 'love-diary',
+      messages: 'love-messages',
+      wishes: 'love-wishes'
+    };
+
+    const DEFAULT_PASSWORD = 'love2026';
+    const START_DATE = new Date('2020-01-01T00:00:00');
+    const ANNIVERSARIES = [
+      { name: '生日', date: '1993-05-10' },
+      { name: '结婚纪念日', date: '2022-12-22' },
+      { name: '相识日', date: '2019-01-01' }
+    ];
+
+    const lockScreen = document.getElementById('lockScreen');
+    const app = document.getElementById('app');
+    const passwordInput = document.getElementById('passwordInput');
+    const enterBtn = document.getElementById('enterBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const introOverlay = document.getElementById('introOverlay');
+    const audio = document.getElementById('bgAudio');
+    const audioToggleBtn = document.getElementById('audioToggleBtn');
+
+    const photoGrid = document.getElementById('photoGrid');
+    const uploadPhotosInput = document.getElementById('uploadPhotos');
+    const photoModal = document.getElementById('photoModal');
+    const modalImage = document.getElementById('modalImage');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const prevPhotoBtn = document.getElementById('prevPhotoBtn');
+    const nextPhotoBtn = document.getElementById('nextPhotoBtn');
+
+    const diaryInput = document.getElementById('diaryInput');
+    const publishDiaryBtn = document.getElementById('publishDiaryBtn');
+    const diaryList = document.getElementById('diaryList');
+
+    const messageInput = document.getElementById('messageInput');
+    const senderSelect = document.getElementById('senderSelect');
+    const publishMessageBtn = document.getElementById('publishMessageBtn');
+    const messageList = document.getElementById('messageList');
+
+    const wishNameInput = document.getElementById('wishName');
+    const wishDateInput = document.getElementById('wishDate');
+    const addWishBtn = document.getElementById('addWishBtn');
+    const wishList = document.getElementById('wishList');
+
+    const countdownList = document.getElementById('countdownList');
+    const loveTimerEl = document.getElementById('loveTimer');
+    const timerDaysEl = document.getElementById('timerDays');
+    const timerHoursEl = document.getElementById('timerHours');
+    const timerMinutesEl = document.getElementById('timerMinutes');
+    const timerSecondsEl = document.getElementById('timerSeconds');
+
+    let photos = loadState(STORAGE_KEYS.photos, []);
+    let diaryEntries = loadState(STORAGE_KEYS.diary, []);
+    let messages = loadState(STORAGE_KEYS.messages, []);
+    let wishes = loadState(STORAGE_KEYS.wishes, []);
+    let currentPhotoIndex = 0;
+    let isAudioPlaying = false;
+
+    function loadState(key, fallback) {
+      try {
+        const saved = localStorage.getItem(key);
+        return saved ? JSON.parse(saved) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveState(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function setAppVisible() {
+      lockScreen.classList.add('hidden');
+      app.classList.remove('hidden');
+      introOverlay.classList.remove('hidden');
+      setTimeout(() => {
+        introOverlay.classList.add('hidden');
+      }, 2000);
+    }
+
+    function checkLogin() {
+      const loggedIn = localStorage.getItem(STORAGE_KEYS.login) === 'true';
+      if (loggedIn) {
+        setAppVisible();
+      }
+    }
+
+    enterBtn.addEventListener('click', handleLogin);
+    passwordInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') handleLogin();
+    });
+
+    function handleLogin() {
+      if (passwordInput.value === DEFAULT_PASSWORD) {
+        localStorage.setItem(STORAGE_KEYS.login, 'true');
+        errorMsg.textContent = '';
+        setAppVisible();
+        initializeAudio();
+      } else {
+        errorMsg.textContent = '密码不正确，请重新输入';
+      }
+    }
+
+    function initializeAudio() {
+      if (!audio.src) {
+        const wav = createGentleWav();
+        const blob = new Blob([wav], { type: 'audio/wav' });
+        audio.src = URL.createObjectURL(blob);
+      }
+      audio.loop = true;
+      audio.play().then(() => {
+        isAudioPlaying = true;
+        audioToggleBtn.textContent = '暂停音乐';
+      }).catch(() => {
+        isAudioPlaying = false;
+        audioToggleBtn.textContent = '播放音乐';
+      });
+    }
+
+    audioToggleBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play().then(() => {
+          isAudioPlaying = true;
+          audioToggleBtn.textContent = '暂停音乐';
+        });
+      } else {
+        audio.pause();
+        isAudioPlaying = false;
+        audioToggleBtn.textContent = '播放音乐';
+      }
+    });
+
+    function createGentleWav() {
+      const sampleRate = 22050;
+      const duration = 2.5;
+      const frameCount = sampleRate * duration;
+      const buffer = new ArrayBuffer(44 + frameCount * 2);
+      const view = new DataView(buffer);
+      const writeString = (offset, string) => {
+        for (let i = 0; i < string.length; i += 1) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      };
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + frameCount * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(36, 'data');
+      view.setUint32(40, frameCount * 2, true);
+
+      for (let i = 0; i < frameCount; i += 1) {
+        const t = i / sampleRate;
+        const tone = Math.sin(2 * Math.PI * 440 * t) * 0.3 + Math.sin(2 * Math.PI * 660 * t) * 0.15;
+        const envelope = Math.exp(-t * 0.35);
+        const sample = tone * envelope * 0.6;
+        const value = Math.max(-1, Math.min(1, sample));
+        view.setInt16(44 + i * 2, value * 0x7fff, true);
+      }
+      return buffer;
+    }
+
+    document.querySelectorAll('.tab-btn').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach((btn) => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach((panel) => panel.classList.remove('active'));
+        button.classList.add('active');
+        document.getElementById(button.dataset.tab).classList.add('active');
+      });
+    });
+
+    function updateLoveTimer() {
+      const now = new Date();
+      const diff = now - START_DATE;
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      loveTimerEl.textContent = `${days}天 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      timerDaysEl.textContent = days;
+      timerHoursEl.textContent = String(hours).padStart(2, '0');
+      timerMinutesEl.textContent = String(minutes).padStart(2, '0');
+      timerSecondsEl.textContent = String(seconds).padStart(2, '0');
+    }
+
+    function renderCountdown() {
+      countdownList.innerHTML = '';
+      ANNIVERSARIES.forEach((item) => {
+        const targetDate = new Date(`${item.date}T00:00:00`);
+        const diffDays = Math.floor((new Date().setHours(0,0,0,0) - targetDate.setHours(0,0,0,0)) / 86400000);
+        const status = diffDays >= 0 ? `已过 ${Math.abs(diffDays)} 天` : `还有 ${Math.abs(diffDays)} 天`;
+        const itemEl = document.createElement('div');
+        itemEl.className = 'count-item';
+        itemEl.innerHTML = `
+          <div>
+            <strong>${item.name}</strong>
+            <div class="meta">${item.date}</div>
+          </div>
+          <div class="pill">${status}</div>
+        `;
+        countdownList.appendChild(itemEl);
+      });
+    }
+
+    function renderPhotos() {
+      photoGrid.innerHTML = '';
+      if (!photos.length) {
+        photoGrid.innerHTML = '<div class="meta">还没有上传照片，快来添加属于你们的回忆吧。</div>';
+        return;
+      }
+
+      photos.forEach((photo, index) => {
+        const card = document.createElement('div');
+        card.className = 'photo-card';
+        card.innerHTML = `
+          <img src="${photo.src}" alt="照片${index + 1}" data-index="${index}" />
+          <div class="meta">照片 ${index + 1}</div>
+          <textarea data-index="${index}" rows="3">${photo.description || ''}</textarea>
+          <div class="photo-actions">
+            <button class="btn btn-secondary" data-action="save" data-index="${index}">保存描述</button>
+          </div>
+        `;
+        card.querySelector('img').addEventListener('click', () => openPhotoModal(index));
+        card.querySelector('textarea').addEventListener('change', () => savePhotoDescription(index, card.querySelector('textarea').value));
+        card.querySelector('[data-action="save"]').addEventListener('click', () => savePhotoDescription(index, card.querySelector('textarea').value));
+        photoGrid.appendChild(card);
+      });
+    }
+
+    function savePhotoDescription(index, value) {
+      photos[index].description = value;
+      saveState(STORAGE_KEYS.photos, photos);
+      renderPhotos();
+    }
+
+    async function handlePhotoUpload(event) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+      const readers = files.map((file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      }));
+      try {
+        const results = await Promise.all(readers);
+        photos = [...results.map((src) => ({ src, description: '' })), ...photos];
+        saveState(STORAGE_KEYS.photos, photos);
+        renderPhotos();
+        event.target.value = '';
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    uploadPhotosInput.addEventListener('change', handlePhotoUpload);
+
+    function openPhotoModal(index) {
+      currentPhotoIndex = index;
+      modalImage.src = photos[index].src;
+      photoModal.classList.remove('hidden');
+      photoModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closePhotoModal() {
+      photoModal.classList.add('hidden');
+      photoModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function showPhotoByOffset(offset) {
+      if (!photos.length) return;
+      currentPhotoIndex = (currentPhotoIndex + offset + photos.length) % photos.length;
+      modalImage.src = photos[currentPhotoIndex].src;
+    }
+
+    closeModalBtn.addEventListener('click', closePhotoModal);
+    prevPhotoBtn.addEventListener('click', () => showPhotoByOffset(-1));
+    nextPhotoBtn.addEventListener('click', () => showPhotoByOffset(1));
+    photoModal.addEventListener('click', (event) => {
+      if (event.target === photoModal) closePhotoModal();
+    });
+
+    function renderDiary() {
+      diaryList.innerHTML = '';
+      const sorted = [...diaryEntries].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      if (!sorted.length) {
+        diaryList.innerHTML = '<div class="meta">还没有日记，记录你们的小确幸吧。</div>';
+        return;
+      }
+      sorted.forEach((entry) => {
+        const item = document.createElement('div');
+        item.className = 'entry-item';
+        item.innerHTML = `
+          <div class="meta">${new Date(entry.timestamp).toLocaleString('zh-CN')}</div>
+          <div>${entry.content}</div>
+          <div class="entry-actions">
+            <button class="btn btn-secondary" data-id="${entry.id}">删除</button>
+          </div>
+        `;
+        item.querySelector('button').addEventListener('click', () => deleteDiaryEntry(entry.id));
+        diaryList.appendChild(item);
+      });
+    }
+
+    function addDiaryEntry() {
+      const content = diaryInput.value.trim();
+      if (!content) return;
+      diaryEntries.unshift({ id: Date.now(), content, timestamp: new Date().toISOString() });
+      saveState(STORAGE_KEYS.diary, diaryEntries);
+      diaryInput.value = '';
+      renderDiary();
+    }
+
+    publishDiaryBtn.addEventListener('click', addDiaryEntry);
+    diaryInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+        addDiaryEntry();
+      }
+    });
+
+    function deleteDiaryEntry(id) {
+      diaryEntries = diaryEntries.filter((entry) => entry.id !== id);
+      saveState(STORAGE_KEYS.diary, diaryEntries);
+      renderDiary();
+    }
+
+    function renderMessages() {
+      messageList.innerHTML = '';
+      const sorted = [...messages].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      if (!sorted.length) {
+        messageList.innerHTML = '<div class="meta">暂时没有留言，留下一个甜甜的句子吧。</div>';
+        return;
+      }
+      sorted.forEach((message) => {
+        const item = document.createElement('div');
+        item.className = 'message-item';
+        item.innerHTML = `
+          <div class="meta">${new Date(message.timestamp).toLocaleString('zh-CN')} · ${message.sender}</div>
+          <div>${message.content}</div>
+          <div class="message-actions">
+            <button class="btn btn-secondary" data-id="${message.id}">删除</button>
+          </div>
+        `;
+        item.querySelector('button').addEventListener('click', () => deleteMessage(message.id));
+        messageList.appendChild(item);
+      });
+    }
+
+    function addMessage() {
+      const content = messageInput.value.trim();
+      if (!content) return;
+      messages.unshift({ id: Date.now(), sender: senderSelect.value, content, timestamp: new Date().toISOString() });
+      saveState(STORAGE_KEYS.messages, messages);
+      messageInput.value = '';
+      renderMessages();
+    }
+
+    publishMessageBtn.addEventListener('click', addMessage);
+    messageInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+        addMessage();
+      }
+    });
+
+    function deleteMessage(id) {
+      messages = messages.filter((message) => message.id !== id);
+      saveState(STORAGE_KEYS.messages, messages);
+      renderMessages();
+    }
+
+    function renderWishes() {
+      wishList.innerHTML = '';
+      if (!wishes.length) {
+        wishList.innerHTML = '<div class="meta">心愿清单是空的，写下你们想一起实现的事情吧。</div>';
+        return;
+      }
+      wishes.forEach((wish) => {
+        const item = document.createElement('div');
+        item.className = 'wish-item';
+        item.innerHTML = `
+          <div class="wish-row">
+            <input type="checkbox" ${wish.completed ? 'checked' : ''} data-id="${wish.id}" />
+            <div style="flex:1">
+              <strong>${wish.name}</strong>
+              ${wish.dueDate ? `<div class="meta">截止日期：${wish.dueDate}</div>` : ''}
+              ${wish.completed ? `<div class="meta">完成时间：${new Date(wish.completedAt).toLocaleString('zh-CN')}</div>` : ''}
+            </div>
+            <button class="btn btn-secondary" data-id="${wish.id}">删除</button>
+          </div>
+        `;
+        item.querySelector('input').addEventListener('change', (event) => toggleWish(event.target.dataset.id, event.target.checked));
+        item.querySelector('button').addEventListener('click', () => deleteWish(wish.id));
+        wishList.appendChild(item);
+      });
+    }
+
+    function addWish() {
+      const name = wishNameInput.value.trim();
+      if (!name) return;
+      wishes.unshift({ id: Date.now(), name, dueDate: wishDateInput.value || '', completed: false, completedAt: '' });
+      saveState(STORAGE_KEYS.wishes, wishes);
+      wishNameInput.value = '';
+      wishDateInput.value = '';
+      renderWishes();
+    }
+
+    addWishBtn.addEventListener('click', addWish);
+    wishNameInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') addWish();
+    });
+
+    function toggleWish(id, completed) {
+      wishes = wishes.map((wish) => {
+        if (wish.id === Number(id)) {
+          return {
+            ...wish,
+            completed,
+            completedAt: completed ? new Date().toISOString() : ''
+          };
+        }
+        return wish;
+      });
+      saveState(STORAGE_KEYS.wishes, wishes);
+      renderWishes();
+    }
+
+    function deleteWish(id) {
+      wishes = wishes.filter((wish) => wish.id !== id);
+      saveState(STORAGE_KEYS.wishes, wishes);
+      renderWishes();
+    }
+
+    function init() {
+      checkLogin();
+      updateLoveTimer();
+      renderCountdown();
+      renderPhotos();
+      renderDiary();
+      renderMessages();
+      renderWishes();
+      setInterval(updateLoveTimer, 1000);
+      setInterval(renderCountdown, 60000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
